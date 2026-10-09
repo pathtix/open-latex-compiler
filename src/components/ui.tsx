@@ -24,16 +24,25 @@ export function Popover({
   const ref = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState({ left: x, top: y, ready: false });
 
+  // Re-placed whenever the content resizes (e.g. a list that loads after opening),
+  // so a popover flipped above its anchor grows upwards instead of off-screen.
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const r = el.getBoundingClientRect();
-    let left = align === "end" ? x - r.width : x;
-    let top = y;
-    if (left + r.width > window.innerWidth - 8) left = window.innerWidth - r.width - 8;
-    if (left < 8) left = 8;
-    if (top + r.height > window.innerHeight - 8) top = Math.max(8, (anchorBottom !== undefined ? anchorBottom - 4 : y) - r.height);
-    setPos({ left, top, ready: true });
+    const place = () => {
+      const width = el.offsetWidth;
+      const height = el.offsetHeight;
+      let left = align === "end" ? x - width : x;
+      let top = y;
+      if (left + width > window.innerWidth - 8) left = window.innerWidth - width - 8;
+      if (left < 8) left = 8;
+      if (top + height > window.innerHeight - 8) top = Math.max(8, (anchorBottom !== undefined ? anchorBottom - 4 : y) - height);
+      setPos((p) => (p.ready && p.left === left && p.top === top ? p : { left, top, ready: true }));
+    };
+    place();
+    const observer = new ResizeObserver(place);
+    observer.observe(el);
+    return () => observer.disconnect();
   }, [x, y, align, anchorBottom]);
 
   useEffect(() => {
