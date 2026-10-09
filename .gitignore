@@ -1,26 +1,21 @@
-# LaTeX build artifacts
+# Dependencies & build output
+node_modules/
+dist/
+
+# LaTeX build artifacts (projects are compiled into ~/.latexcompile/cache)
 *.aux
 *.bbl
 *.bcf
 *.blg
 *.fdb_latexmk
 *.fls
-*.lof
 *.log
-*.lot
 *.out
 *.run.xml
 *.synctex.gz
 *.toc
-*.nav
-*.snm
-*.vrb
 *.xdv
 *.dvi
-build/
-
-# Generated PDFs
-*.pdf
 
 # Editor / OS files
 .DS_Store
