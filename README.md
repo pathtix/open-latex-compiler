@@ -1,4 +1,4 @@
-# open-latex-compiler
+# Open LaTeX Compiler
 
 <p align="center">
   <img src="docs/screenshot.png" width="80%" alt="Open LaTeX Compiler with the file panel, the LaTeX editor and the compiled PDF side by side">
