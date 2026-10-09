@@ -1,4 +1,4 @@
-# latexcompile
+# open-latex-compiler
 
 A local LaTeX editor in the spirit of Overleaf and OpenAI Prism. Everything runs on your machine: files stay on your disk, documents compile with your own TeX installation, and the writing assistant talks to a local model served by LM Studio, Ollama or any other OpenAI-compatible server.
 
