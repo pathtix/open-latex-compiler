@@ -1,6 +1,8 @@
 # open-latex-compiler
 
-![Open LaTeX Compiler with the file panel, the LaTeX editor and the compiled PDF side by side](docs/screenshot.png)
+<p align="center">
+  <img src="docs/screenshot.png" width="80%" alt="Open LaTeX Compiler with the file panel, the LaTeX editor and the compiled PDF side by side">
+</p>
 
 A local LaTeX editor in the spirit of Overleaf and OpenAI Prism. Everything runs on your machine: files stay on your disk, documents compile with your own TeX installation, and the writing assistant talks to a local model served by LM Studio, Ollama or any other OpenAI-compatible server.
 
