@@ -23,3 +23,7 @@ dist/
 *~
 .vscode/
 .idea/
+
+# Desktop app build output
+dist-electron/
+release/

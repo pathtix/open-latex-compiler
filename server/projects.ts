@@ -40,16 +40,17 @@ export function permissionError(err: unknown): HttpError | null {
   if (code !== "EPERM" && code !== "EACCES") return null;
   const what = target ? `“${path.basename(target)}”` : "this folder";
   if (process.platform !== "darwin" || code === "EACCES") return new HttpError(403, `Permission denied: cannot access ${what}.`, "permission");
-  const app = TERMINALS[process.env.TERM_PROGRAM ?? ""] ?? "the app that started Open LaTeX Compiler";
+  // The desktop app asks for access itself; from a terminal, the terminal app is the one that needs it.
+  const desktop = !!process.env.LATEXCOMPILE_DESKTOP;
+  const app = desktop ? "Open LaTeX Compiler" : TERMINALS[process.env.TERM_PROGRAM ?? ""] ?? "the app that started Open LaTeX Compiler";
   const top = target ? path.relative(os.homedir(), target).split(path.sep)[0] : "";
   const fix = PROTECTED.includes(top)
     ? `turn on “${top} Folder” for ${app} in System Settings → Privacy & Security → Files & Folders`
     : `give ${app} Full Disk Access in System Settings → Privacy & Security`;
-  return new HttpError(
-    403,
-    `macOS blocked access to ${what}. To allow it, ${fix}. If it is already on, ${app} probably updated itself while running, which suspends its permissions: quit ${app} (⌘Q), reopen it and start Open LaTeX Compiler again.`,
-    PROTECTED.includes(top) ? "macos-files" : "macos-full-disk",
-  );
+  const restart = desktop
+    ? "then quit Open LaTeX Compiler (⌘Q) and open it again."
+    : `then quit ${app} (⌘Q), reopen it and start Open LaTeX Compiler again. If it is already on, ${app} probably updated itself while running, which suspends its permissions until it restarts.`;
+  return new HttpError(403, `macOS blocked access to ${what}. To allow it, ${fix}, ${restart}`, PROTECTED.includes(top) ? "macos-files" : "macos-full-disk");
 }
 
 /** Names that never show up in the file tree, search or exports. */

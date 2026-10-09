@@ -5,6 +5,7 @@ import { Home } from "./components/Home";
 import { Logo } from "./components/Logo";
 import { OverlayHost } from "./components/overlays";
 import { Workspace } from "./components/Workspace";
+import { desktop } from "./lib/desktop";
 import { useStore } from "./lib/store";
 
 export function App() {
@@ -19,6 +20,7 @@ export function App() {
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
+    desktop?.setTheme(theme);
   }, [theme]);
 
   if (error) {

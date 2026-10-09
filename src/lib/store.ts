@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { desktop } from "./desktop";
 import { api, eventsUrl, type AppConfig, type Chat, type CompileResult, type Project, type ProjectSettings, type Symbols, type SystemInfo, type TreeNode } from "./api";
 
 export type DocKind = "text" | "image" | "pdf" | "binary";
@@ -123,6 +124,8 @@ interface State {
 interface Actions {
   init(): Promise<void>;
   refreshProjects(): Promise<void>;
+  /** Links an existing folder as a project: Finder's picker in the desktop app, the folder dialog in a browser. */
+  openFolder(): Promise<void>;
   openProject(id: string, opts?: { push?: boolean }): Promise<void>;
   closeProject(): void;
   refreshTree(): Promise<void>;
@@ -197,6 +200,19 @@ export const useStore = create<Store>((set, get) => ({
 
   async refreshProjects() {
     set({ projects: await api.projects() });
+  },
+
+  async openFolder() {
+    if (!desktop) return get().setDialog({ kind: "openFolder" });
+    const dir = await desktop.pickFolder();
+    if (!dir) return;
+    try {
+      const p = await api.linkProject(dir);
+      await get().refreshProjects();
+      await get().openProject(p.id);
+    } catch (e) {
+      get().toast((e as Error).message, "error");
+    }
   },
 
   async openProject(id, opts = {}) {

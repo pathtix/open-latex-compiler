@@ -145,7 +145,7 @@ function ProjectSwitcher() {
             </div>
             <MenuSeparator />
             <MenuItem icon={<Plus size={14} />} label="New project…" onClick={() => (close(), st().setDialog({ kind: "newProject" }))} />
-            <MenuItem icon={<FolderOpen size={14} />} label="Open folder…" onClick={() => (close(), st().setDialog({ kind: "openFolder" }))} />
+            <MenuItem icon={<FolderOpen size={14} />} label="Open folder…" onClick={() => (close(), void st().openFolder())} />
             <MenuItem icon={<FolderInput size={14} />} label="Import .zip…" onClick={() => (close(), importZip())} />
             <MenuItem icon={<LayoutGrid size={14} />} label="All projects" onClick={() => (close(), st().closeProject())} />
             <MenuSeparator />

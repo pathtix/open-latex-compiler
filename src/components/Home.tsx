@@ -43,7 +43,7 @@ export function Home() {
           <button className="btn primary" onClick={() => st().setDialog({ kind: "newProject" })}>
             <Plus size={15} /> New project
           </button>
-          <button className="btn" onClick={() => st().setDialog({ kind: "openFolder" })}>
+          <button className="btn" onClick={() => void st().openFolder()}>
             <FolderOpen size={15} /> Open folder
           </button>
           <button className="btn" onClick={importZip}>

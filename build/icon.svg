@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2b2b2e"/>
+      <stop offset="1" stop-color="#0c0c0d"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <!-- macOS icon grid: an 824px rounded square centred on a 1024px canvas. -->
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#bg)" filter="url(#shadow)"/>
+  <rect x="100.5" y="100.5" width="823" height="823" rx="184.5" fill="none" stroke="#fff" stroke-opacity="0.08"/>
+  <!-- The OLC mark from the app logo (32-unit grid), scaled to the square. -->
+  <g transform="translate(100 100) scale(25.75)" fill="none" stroke="#fff" stroke-width="2.4">
+    <ellipse cx="8" cy="16" rx="2.8" ry="4.3"/>
+    <path d="M15 10.5V20.3H19.2"/>
+    <path d="M26.87 12.8A2.8 4.3 0 1 0 26.87 19.2"/>
+  </g>
+</svg>

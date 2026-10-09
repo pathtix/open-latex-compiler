@@ -35,6 +35,19 @@ After the first build, `npm start` starts the app without rebuilding. `npm run d
 
 The first run creates a `welcome` project in `~/LatexCompile`. You can change the workspace folder in **Settings → General**.
 
+### Mac app
+
+Open LaTeX Compiler also runs as a regular Mac app, with its own window and Dock icon and no terminal or browser tab.
+
+```sh
+npm run desktop          # build and open the app
+npm run desktop:build    # package it into release/
+```
+
+`desktop:build` creates `release/mac-arm64/Open LaTeX Compiler.app` and a `.dmg` installer for Apple Silicon. Drag the app into Applications to install it. The app runs the same server internally and uses the same projects and settings as the browser version.
+
+macOS asks for access to Desktop, Documents or Downloads under the app's own name the first time a project there is opened. The build is ad-hoc signed, so it opens without warnings on the Mac that built it. A copy downloaded on another Mac needs right-click → **Open** the first time, because it is not signed with an Apple Developer ID.
+
 ### Connecting LM Studio
 
 1. In LM Studio, download a model (for example Qwen3, Gemma 3 or gpt-oss) and open the **Developer** tab.
@@ -78,6 +91,7 @@ Builds happen outside the project folder, so your sources stay free of `.aux` an
 
 ```
 server/        Express API: projects, files, compilation (latexmk), log parsing, SyncTeX, LLM proxy
+electron/      Mac app: window, menus, Finder folder picker; starts the server inside the app
 src/           React UI
   editor/      CodeMirror 6 setup, LaTeX/BibTeX languages, completions
   pdf/         pdf.js viewer

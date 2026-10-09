@@ -469,9 +469,12 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
 // Frontend
 // ---------------------------------------------------------------------------
 // pdf.js runtime assets (CMaps, standard fonts, wasm decoders) used by the viewer.
+// Served from node_modules when present; production builds also copy them to dist/pdfjs,
+// which is all the desktop app ships.
 const PDFJS_DIR = path.join(ROOT, "node_modules", "pdfjs-dist");
 for (const sub of ["cmaps", "standard_fonts", "wasm", "iccs"]) {
-  app.use(`/pdfjs/${sub}`, express.static(path.join(PDFJS_DIR, sub), { maxAge: "7d", fallthrough: false }));
+  const dir = path.join(PDFJS_DIR, sub);
+  if (fs.existsSync(dir)) app.use(`/pdfjs/${sub}`, express.static(dir, { maxAge: "7d", fallthrough: false }));
 }
 
 async function mountFrontend() {
@@ -519,15 +522,22 @@ function seedWelcomeProject() {
   } catch {}
 }
 
-await mountFrontend();
-server.listen(PORT, HOST, () => {
-  const url = `http://localhost:${PORT}`;
-  console.log(`\n  Open LaTeX Compiler ${DEV ? "(dev) " : ""}running at ${url}`);
-  console.log(`  workspace: ${loadConfig().workspace}\n`);
-  if (!process.argv.includes("--no-open") && !process.env.NO_OPEN && !DEV) {
-    const cmd = process.platform === "darwin" ? "open" : process.platform === "win32" ? "start" : "xdg-open";
-    try {
-      spawn(cmd, [url], { detached: true, stdio: "ignore", shell: process.platform === "win32" }).unref();
-    } catch {}
-  }
-});
+/** Resolves with the app URL once the server is listening (the desktop app waits on it). */
+export const ready = mountFrontend().then(
+  () =>
+    new Promise<string>((resolve, reject) => {
+      server.once("error", reject);
+      server.listen(PORT, HOST, () => {
+        const url = `http://localhost:${PORT}`;
+        console.log(`\n  Open LaTeX Compiler ${DEV ? "(dev) " : ""}running at ${url}`);
+        console.log(`  workspace: ${loadConfig().workspace}\n`);
+        if (!process.argv.includes("--no-open") && !process.env.NO_OPEN && !DEV) {
+          const cmd = process.platform === "darwin" ? "open" : process.platform === "win32" ? "start" : "xdg-open";
+          try {
+            spawn(cmd, [url], { detached: true, stdio: "ignore", shell: process.platform === "win32" }).unref();
+          } catch {}
+        }
+        resolve(url);
+      });
+    }),
+);
