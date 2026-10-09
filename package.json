@@ -1,5 +1,5 @@
 {
-  "name": "latexcompile",
+  "name": "open-latex-compiler",
   "version": "0.1.0",
   "private": true,
   "description": "A local LaTeX editor and compiler with live PDF preview and local-LLM writing tools.",

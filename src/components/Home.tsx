@@ -19,7 +19,7 @@ export function Home() {
       <header className="home-top">
         <div className="home-brand">
           <Logo size={26} />
-          <span>latexcompile</span>
+          <span>Open LaTeX Compiler</span>
         </div>
         <div className="grow" />
         <button className="icon-btn" title="Toggle theme" onClick={() => st().setPrefs({ theme: prefs.theme === "dark" ? "light" : "dark" })}>
@@ -36,7 +36,7 @@ export function Home() {
         </p>
         {missingTex && (
           <div className="home-warning">
-            No TeX distribution was found. Install MacTeX / TeX Live (or Tectonic) and restart latexcompile to compile documents.
+            No TeX distribution was found. Install MacTeX / TeX Live (or Tectonic) and restart Open LaTeX Compiler to compile documents.
           </div>
         )}
         <div className="home-actions">

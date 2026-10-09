@@ -392,7 +392,7 @@ function OpenFolderDialog({ onClose }: { onClose: () => void }) {
         {listing && listing.dirs.length === 0 && <div className="empty-hint">No subfolders</div>}
       </div>
       <div className="set-hint">
-        <FolderOpen size={12} /> The folder stays where it is; latexcompile edits the files in place and keeps build output in its own cache.
+        <FolderOpen size={12} /> The folder stays where it is; Open LaTeX Compiler edits the files in place and keeps build output in its own cache.
       </div>
       {error && (
         <div className="field-error">

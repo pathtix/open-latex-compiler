@@ -1,5 +1,7 @@
 # open-latex-compiler
 
+![Open LaTeX Compiler with the file panel, the LaTeX editor and the compiled PDF side by side](docs/screenshot.png)
+
 A local LaTeX editor in the spirit of Overleaf and OpenAI Prism. Everything runs on your machine: files stay on your disk, documents compile with your own TeX installation, and the writing assistant talks to a local model served by LM Studio, Ollama or any other OpenAI-compatible server.
 
 - **Three-pane workspace:** a file panel (left or right), the editor, and a live PDF preview, each resizable
@@ -27,7 +29,7 @@ npm install
 npm run app      # build the UI and start the app at http://localhost:4747
 ```
 
-After the first build, `npm start` starts the app without rebuilding. `npm run dev` runs it with hot reload while you work on latexcompile itself.
+After the first build, `npm start` starts the app without rebuilding. `npm run dev` runs it with hot reload while you work on Open LaTeX Compiler itself.
 
 The first run creates a `welcome` project in `~/LatexCompile`. You can change the workspace folder in **Settings → General**.
 
@@ -35,7 +37,7 @@ The first run creates a `welcome` project in `~/LatexCompile`. You can change th
 
 1. In LM Studio, download a model (for example Qwen3, Gemma 3 or gpt-oss) and open the **Developer** tab.
 2. Click **Start Server**. The default address is `http://localhost:1234/v1`.
-3. In latexcompile, open **Settings → AI models**, click **Test**, and pick a model. Leave the model on *Auto* to use the first model available.
+3. In Open LaTeX Compiler, open **Settings → AI models**, click **Test**, and pick a model. Leave the model on *Auto* to use the first model available.
 
 Ollama (`http://localhost:11434/v1`), llama.cpp, vLLM and Jan have presets. Any other OpenAI-compatible endpoint works through *Custom*. Reasoning output (`reasoning_content` or `<think>` tags) shows up in a collapsible *Reasoning* section.
 
@@ -85,4 +87,4 @@ src/           React UI
 
 Built by [@pathtix](https://github.com/pathtix) together with [Claude](https://www.anthropic.com/claude) (Anthropic), using Claude Code.
 
-The interface is inspired by Overleaf and OpenAI Prism. open-latex-compiler is an independent project and is not affiliated with, endorsed by or sponsored by OpenAI or Overleaf.
+The interface is inspired by Overleaf and OpenAI Prism. Open LaTeX Compiler is an independent project and is not affiliated with, endorsed by or sponsored by OpenAI or Overleaf.

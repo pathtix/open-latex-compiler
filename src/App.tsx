@@ -25,7 +25,7 @@ export function App() {
     return (
       <div className="boot">
         <Logo size={34} />
-        <div className="boot-error">Could not reach the latexcompile server: {error}</div>
+        <div className="boot-error">Could not reach the Open LaTeX Compiler server: {error}</div>
       </div>
     );
   }

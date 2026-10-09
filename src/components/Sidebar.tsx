@@ -181,7 +181,7 @@ function ProjectSwitcher() {
                   title: project.linked ? `Remove ${project.name}?` : `Delete ${project.name}?`,
                   confirm: project.linked ? "Remove" : "Delete",
                   body: project.linked ? (
-                    <>The folder stays on disk at <code>{project.path}</code>; it is only removed from latexcompile.</>
+                    <>The folder stays on disk at <code>{project.path}</code>; it is only removed from Open LaTeX Compiler.</>
                   ) : (
                     <>The project folder will be moved to <code>~/.latexcompile/trash</code>.</>
                   ),

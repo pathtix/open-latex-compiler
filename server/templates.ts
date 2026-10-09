@@ -299,7 +299,7 @@ export const templates: Template[] = [
 
 export const welcomeProject: Record<string, string> = {
   "main.tex": article
-    .replace("An Article Title", "Welcome to latexcompile")
+    .replace("An Article Title", "Welcome to Open LaTeX Compiler")
     .replace(
       "Start writing here.",
       String.raw`This project lives in your local workspace and compiles with your own

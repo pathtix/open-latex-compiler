@@ -210,7 +210,7 @@ export const useStore = create<Store>((set, get) => ({
       return;
     }
     if (opts.push !== false) history.pushState({}, "", `/project/${id}`);
-    document.title = `${project.name} · latexcompile`;
+    document.title = `${project.name} · Open LaTeX Compiler`;
     set({
       project,
       tree: [],
@@ -259,7 +259,7 @@ export const useStore = create<Store>((set, get) => ({
     events?.close();
     events = null;
     if (location.pathname !== "/") history.pushState({}, "", "/");
-    document.title = "latexcompile";
+    document.title = "Open LaTeX Compiler";
     set({ project: undefined, docs: {}, tabs: [], active: undefined, tree: [], compileResult: undefined, compileStatus: "idle" });
     void get().refreshProjects();
   },

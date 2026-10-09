@@ -33,21 +33,21 @@ const PROTECTED = ["Desktop", "Documents", "Downloads"];
 /**
  * Turns EPERM/EACCES into an actionable message. On macOS, EPERM usually comes from the
  * privacy protection on Desktop, Documents, Downloads and external volumes, which applies
- * to the app that started latexcompile (the terminal), not to latexcompile itself.
+ * to the app that started Open LaTeX Compiler (the terminal), not to Open LaTeX Compiler itself.
  */
 export function permissionError(err: unknown): HttpError | null {
   const { code, path: target } = (err ?? {}) as NodeJS.ErrnoException;
   if (code !== "EPERM" && code !== "EACCES") return null;
   const what = target ? `“${path.basename(target)}”` : "this folder";
   if (process.platform !== "darwin" || code === "EACCES") return new HttpError(403, `Permission denied: cannot access ${what}.`, "permission");
-  const app = TERMINALS[process.env.TERM_PROGRAM ?? ""] ?? "the app that started latexcompile";
+  const app = TERMINALS[process.env.TERM_PROGRAM ?? ""] ?? "the app that started Open LaTeX Compiler";
   const top = target ? path.relative(os.homedir(), target).split(path.sep)[0] : "";
   const fix = PROTECTED.includes(top)
     ? `turn on “${top} Folder” for ${app} in System Settings → Privacy & Security → Files & Folders`
     : `give ${app} Full Disk Access in System Settings → Privacy & Security`;
   return new HttpError(
     403,
-    `macOS blocked access to ${what}. To allow it, ${fix}. If it is already on, ${app} probably updated itself while running, which suspends its permissions: quit ${app} (⌘Q), reopen it and start latexcompile again.`,
+    `macOS blocked access to ${what}. To allow it, ${fix}. If it is already on, ${app} probably updated itself while running, which suspends its permissions: quit ${app} (⌘Q), reopen it and start Open LaTeX Compiler again.`,
     PROTECTED.includes(top) ? "macos-files" : "macos-full-disk",
   );
 }

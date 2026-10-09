@@ -522,7 +522,7 @@ function seedWelcomeProject() {
 await mountFrontend();
 server.listen(PORT, HOST, () => {
   const url = `http://localhost:${PORT}`;
-  console.log(`\n  latexcompile ${DEV ? "(dev) " : ""}running at ${url}`);
+  console.log(`\n  Open LaTeX Compiler ${DEV ? "(dev) " : ""}running at ${url}`);
   console.log(`  workspace: ${loadConfig().workspace}\n`);
   if (!process.argv.includes("--no-open") && !process.env.NO_OPEN && !DEV) {
     const cmd = process.platform === "darwin" ? "open" : process.platform === "win32" ? "start" : "xdg-open";

@@ -248,7 +248,7 @@ function NodeRow({
                 title: `Delete ${node.name}?`,
                 body: (
                   <>
-                    <b>{node.path}</b> will be moved to the latexcompile trash (<code>~/.latexcompile/trash</code>), so it can still be recovered.
+                    <b>{node.path}</b> will be moved to the Open LaTeX Compiler trash (<code>~/.latexcompile/trash</code>), so it can still be recovered.
                   </>
                 ),
                 onConfirm: () => st.deletePath(node.path),
