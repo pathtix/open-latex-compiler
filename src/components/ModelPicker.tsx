@@ -2,6 +2,7 @@ import { ChevronDown, Cpu, RefreshCw, Settings2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api } from "../lib/api";
 import { useStore } from "../lib/store";
+import { ModelSearch } from "./ModelSearch";
 import { Menu, MenuItem, MenuLabel, MenuSeparator, Spinner } from "./ui";
 
 export function shortModel(id: string) {
@@ -56,12 +57,7 @@ function ModelList({ close }: { close: () => void }) {
         </span>
       </MenuLabel>
       {state.error && <div className="menu-error">{state.error}</div>}
-      <MenuItem checked={!config.llm.model} label="Auto (first available)" onClick={() => void choose("")} />
-      <div className="menu-scroll">
-        {state.models.map((m) => (
-          <MenuItem key={m} checked={config.llm.model === m} label={<span className="mono-small">{m}</span>} onClick={() => void choose(m)} />
-        ))}
-      </div>
+      <ModelSearch models={state.models} value={config.llm.model} onPick={(m) => void choose(m)} />
       {!state.loading && !state.error && state.models.length === 0 && <div className="menu-error">No models found. Load one in LM Studio.</div>}
       <MenuSeparator />
       <MenuItem icon={<Settings2 size={14} />} label="AI settings…" onClick={() => (close(), useStore.getState().setDialog({ kind: "settings", tab: "ai" }))} />

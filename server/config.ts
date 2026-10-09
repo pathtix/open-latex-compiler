@@ -4,6 +4,13 @@ import path from "node:path";
 
 export type Engine = "auto" | "pdflatex" | "xelatex" | "lualatex" | "latex" | "tectonic";
 
+/** Endpoint, key and model last used with one provider, restored when switching back to it. */
+export interface LlmProfile {
+  baseUrl: string;
+  apiKey: string;
+  model: string;
+}
+
 export interface LlmConfig {
   provider: string;
   baseUrl: string;
@@ -14,6 +21,7 @@ export interface LlmConfig {
   reasoningEffort: "" | "low" | "medium" | "high";
   contextChars: number;
   systemPrompt: string;
+  profiles: Record<string, LlmProfile>;
 }
 
 export interface CompilerDefaults {
@@ -56,6 +64,7 @@ const defaults = (): AppConfig => ({
     reasoningEffort: "",
     contextChars: 12000,
     systemPrompt: "",
+    profiles: {},
   },
   compiler: {
     engine: "auto",
@@ -90,7 +99,8 @@ export function saveConfig(next: AppConfig) {
   cached = next;
   fs.mkdirSync(APP_DIR, { recursive: true });
   const tmp = CONFIG_FILE + ".tmp";
-  fs.writeFileSync(tmp, JSON.stringify(next, null, 2));
+  // Owner-only: the file holds API keys.
+  fs.writeFileSync(tmp, JSON.stringify(next, null, 2), { mode: 0o600 });
   fs.renameSync(tmp, CONFIG_FILE);
 }
 

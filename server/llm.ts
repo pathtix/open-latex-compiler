@@ -7,10 +7,21 @@ export const PROVIDER_PRESETS: Record<string, { label: string; baseUrl: string }
   llamacpp: { label: "llama.cpp server", baseUrl: "http://localhost:8080/v1" },
   vllm: { label: "vLLM", baseUrl: "http://localhost:8000/v1" },
   jan: { label: "Jan", baseUrl: "http://localhost:1337/v1" },
+  openrouter: { label: "OpenRouter", baseUrl: "https://openrouter.ai/api/v1" },
   custom: { label: "Custom (OpenAI-compatible)", baseUrl: "" },
 };
 
-const trimSlash = (s: string) => s.replace(/\/+$/, "");
+/**
+ * OpenAI-compatible servers serve their API under /v1. LM Studio shows its address without it
+ * ("Reachable at http://localhost:1234"), so a base URL with no path gets /v1 added.
+ */
+export function apiBase(url: string) {
+  const trimmed = url.trim().replace(/\/+$/, "");
+  try {
+    if (new URL(trimmed).pathname === "/") return `${trimmed}/v1`;
+  } catch {}
+  return trimmed;
+}
 
 function headers(apiKey: string) {
   const h: Record<string, string> = { "Content-Type": "application/json" };
@@ -26,7 +37,7 @@ function unreachable(baseUrl: string, err: unknown) {
 
 export async function listModels(override?: { baseUrl?: string; apiKey?: string }) {
   const cfg = loadConfig().llm;
-  const baseUrl = trimSlash(override?.baseUrl || cfg.baseUrl);
+  const baseUrl = apiBase(override?.baseUrl || cfg.baseUrl);
   const apiKey = override?.apiKey ?? cfg.apiKey;
   let res: globalThis.Response;
   try {
@@ -35,8 +46,13 @@ export async function listModels(override?: { baseUrl?: string; apiKey?: string 
     return { ok: false as const, error: unreachable(baseUrl, err), models: [] as string[] };
   }
   if (!res.ok) return { ok: false as const, error: `Model server responded ${res.status} ${res.statusText}`, models: [] as string[] };
-  const body = (await res.json().catch(() => ({}))) as { data?: { id: string; type?: string }[] };
-  const models = (body.data ?? [])
+  const body = (await res.json().catch(() => ({}))) as { data?: { id: string; type?: string }[]; error?: unknown };
+  // LM Studio answers unknown paths with 200 and an error body, so check the shape too.
+  if (!Array.isArray(body.data)) {
+    const detail = typeof body.error === "string" ? body.error : (body.error as { message?: string } | undefined)?.message;
+    return { ok: false as const, error: `${baseUrl}/models did not return a model list${detail ? ` (${detail})` : ""}. Check the endpoint in Settings → AI.`, models: [] as string[] };
+  }
+  const models = body.data
     .filter((m) => !/embed/i.test(m.id) && m.type !== "embeddings")
     .map((m) => m.id);
   return { ok: true as const, models };
@@ -58,7 +74,7 @@ export async function proxyChat(req: Request, res: Response) {
     res.status(400).json({ error: "messages is required" });
     return;
   }
-  const baseUrl = trimSlash(cfg.baseUrl);
+  const baseUrl = apiBase(cfg.baseUrl);
   let model = body.model || cfg.model;
   if (!model) {
     const listed = await listModels();

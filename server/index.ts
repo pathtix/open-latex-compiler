@@ -111,7 +111,12 @@ app.get("/api/config", h(() => publicConfig(loadConfig())));
 app.put("/api/config", h((req) => {
   const body = req.body as Partial<AppConfig>;
   const next = updateConfig((c) => {
-    if (body.llm) c.llm = { ...c.llm, ...body.llm };
+    if (body.llm) {
+      c.llm = { ...c.llm, ...body.llm };
+      // Keep each provider's endpoint, key and model so switching providers does not lose them.
+      const { provider, baseUrl, apiKey, model } = c.llm;
+      c.llm.profiles = { ...c.llm.profiles, [provider]: { baseUrl, apiKey, model } };
+    }
     if (body.compiler) c.compiler = { ...c.compiler, ...body.compiler };
     if (typeof body.workspace === "string" && body.workspace.trim()) {
       const ws = path.resolve(body.workspace.trim().replace(/^~(?=$|\/)/, os.homedir()));

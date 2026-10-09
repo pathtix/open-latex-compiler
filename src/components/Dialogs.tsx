@@ -1,9 +1,10 @@
-import { ArrowUp, CheckCircle2, CircleAlert, Folder, FolderOpen, Home, RefreshCw } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ArrowUp, CheckCircle2, ChevronDown, CircleAlert, Folder, FolderOpen, Home, RefreshCw } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api, ApiError, type AppConfig, type Engine, type LlmConfig } from "../lib/api";
 import { flatten, useStore } from "../lib/store";
 import { ENGINE_LABELS } from "./PdfPane";
-import { Modal, Spinner } from "./ui";
+import { ModelSearch } from "./ModelSearch";
+import { Menu, Modal, Spinner } from "./ui";
 
 export function DialogHost() {
   const dialog = useStore((s) => s.dialog);
@@ -173,33 +174,59 @@ function AiSettings() {
   const system = useStore((s) => s.system)!;
   const [llm, setLlm] = useState<LlmConfig>(config.llm);
   const [test, setTest] = useState<{ state: "idle" | "loading" | "ok" | "error"; models: string[]; error?: string }>({ state: "idle", models: [] });
-  const [dirty, setDirty] = useState(false);
-  const update = (patch: Partial<LlmConfig>) => {
-    setLlm((l) => ({ ...l, ...patch }));
-    setDirty(true);
+  const [saveState, setSaveState] = useState<{ state: "saved" | "saving" | "error"; error?: string }>({ state: "saved" });
+  // Changes save on their own shortly after typing stops, and when the dialog closes.
+  const pending = useRef<LlmConfig | null>(null);
+  const flush = useCallback(() => {
+    const next = pending.current;
+    if (!next) return;
+    pending.current = null;
+    api
+      .saveConfig({ llm: next })
+      .then((c) => {
+        useStore.getState().setConfig(c);
+        if (!pending.current) setSaveState({ state: "saved" });
+      })
+      .catch((e) => setSaveState({ state: "error", error: (e as Error).message }));
+  }, []);
+  useEffect(() => {
+    if (!pending.current) return;
+    const t = setTimeout(flush, 600);
+    return () => clearTimeout(t);
+  }, [llm, flush]);
+  useEffect(() => flush, [flush]);
+  const apply = (next: LlmConfig) => {
+    pending.current = next;
+    setLlm(next);
+    setSaveState({ state: "saving" });
   };
+  const update = (patch: Partial<LlmConfig>) => apply({ ...llm, ...patch });
   const runTest = async (l = llm) => {
+    if (!l.baseUrl.trim()) return setTest({ state: "error", models: [], error: "Enter the server URL" });
     setTest({ state: "loading", models: [] });
     const r = await api.models(l.baseUrl, l.apiKey).catch((e) => ({ ok: false, models: [], error: e.message }));
     setTest({ state: r.ok ? "ok" : "error", models: r.models, error: r.error });
   };
   useEffect(() => void runTest(config.llm), []);
-  const save = async () => {
-    const next = await api.saveConfig({ llm });
-    useStore.getState().setConfig(next);
-    setDirty(false);
+  /** Stashes the current provider's endpoint, key and model, and restores the new provider's. */
+  const switchProvider = (provider: string) => {
+    const profiles = { ...llm.profiles, [llm.provider]: { baseUrl: llm.baseUrl, apiKey: llm.apiKey, model: llm.model } };
+    const saved = profiles[provider];
+    const next = {
+      ...llm,
+      provider,
+      profiles,
+      baseUrl: saved?.baseUrl ?? system.providers[provider]?.baseUrl ?? "",
+      apiKey: saved?.apiKey ?? "",
+      model: saved?.model ?? "",
+    };
+    apply(next);
+    void runTest(next);
   };
   return (
     <>
-      <Row label="Provider" hint="Any OpenAI-compatible server works">
-        <select
-          className="input"
-          value={llm.provider}
-          onChange={(e) => {
-            const preset = system.providers[e.target.value];
-            update({ provider: e.target.value, baseUrl: preset?.baseUrl || llm.baseUrl });
-          }}
-        >
+      <Row label="Provider" hint="Each provider remembers its own URL, API key and model">
+        <select className="input" value={llm.provider} onChange={(e) => switchProvider(e.target.value)}>
           {Object.entries(system.providers).map(([id, p]) => (
             <option key={id} value={id}>
               {p.label}
@@ -209,7 +236,12 @@ function AiSettings() {
       </Row>
       <Row label="Server URL">
         <div className="row-gap">
-          <input className="input mono" value={llm.baseUrl} onChange={(e) => update({ baseUrl: e.target.value })} placeholder="http://localhost:1234/v1" />
+          <input
+            className="input mono"
+            value={llm.baseUrl}
+            onChange={(e) => update({ baseUrl: e.target.value })}
+            placeholder={system.providers[llm.provider]?.baseUrl || "https://example.com/v1"}
+          />
           <button className="btn" onClick={() => void runTest()}>
             {test.state === "loading" ? <Spinner /> : <RefreshCw size={14} />} Test
           </button>
@@ -232,14 +264,26 @@ function AiSettings() {
         <input className="input mono" type="password" value={llm.apiKey} onChange={(e) => update({ apiKey: e.target.value })} placeholder="optional" />
       </Row>
       <Row label="Model">
-        <select className="input" value={llm.model} onChange={(e) => update({ model: e.target.value })}>
-          <option value="">Auto (first available)</option>
-          {[...new Set([...(llm.model ? [llm.model] : []), ...test.models])].map((m) => (
-            <option key={m} value={m}>
-              {m}
-            </option>
-          ))}
-        </select>
+        <Menu
+          className="model-menu"
+          trigger={({ toggle, open }) => (
+            <button type="button" className={`input model-field${open ? " open" : ""}`} onClick={toggle}>
+              <span className={llm.model ? "mono-small" : ""}>{llm.model || "Auto (first available)"}</span>
+              <ChevronDown size={14} />
+            </button>
+          )}
+        >
+          {(close) => (
+            <ModelSearch
+              models={[...new Set([...(llm.model ? [llm.model] : []), ...test.models])]}
+              value={llm.model}
+              onPick={(model) => {
+                close();
+                update({ model });
+              }}
+            />
+          )}
+        </Menu>
       </Row>
       <Row label="Temperature">
         <div className="row-gap">
@@ -264,10 +308,18 @@ function AiSettings() {
       <Row label="Extra instructions" hint="Appended to every AI request (style, language, citation conventions…)">
         <textarea className="input" rows={3} value={llm.systemPrompt} onChange={(e) => update({ systemPrompt: e.target.value })} placeholder="e.g. Use British English. Prefer \cref over \ref." />
       </Row>
-      <div className="set-actions">
-        <button className="btn primary" disabled={!dirty} onClick={() => void save()}>
-          {dirty ? "Save AI settings" : "Saved"}
-        </button>
+      <div className={`set-actions save-status ${saveState.state}`}>
+        {saveState.state === "saving" && "Saving…"}
+        {saveState.state === "saved" && (
+          <>
+            <CheckCircle2 size={13} /> Changes are saved automatically
+          </>
+        )}
+        {saveState.state === "error" && (
+          <>
+            <CircleAlert size={13} /> Could not save: {saveState.error}
+          </>
+        )}
       </div>
     </>
   );

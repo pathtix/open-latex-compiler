@@ -47,6 +47,8 @@ export interface LlmConfig {
   reasoningEffort: "" | "low" | "medium" | "high";
   contextChars: number;
   systemPrompt: string;
+  /** Last endpoint, key and model per provider. */
+  profiles?: Record<string, { baseUrl: string; apiKey: string; model: string }>;
 }
 
 export interface AppConfig {
