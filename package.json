@@ -2,6 +2,7 @@
   "name": "open-latex-compiler",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "description": "A local LaTeX editor and compiler with live PDF preview and local-LLM writing tools.",
   "type": "module",
   "main": "dist-electron/main.mjs",
