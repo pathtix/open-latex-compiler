@@ -80,3 +80,9 @@ src/           React UI
   components/  Sidebar, editor pane, PDF pane, AI edit, chat, dialogs
   lib/         API client, state store, LLM streaming, outline and diff helpers
 ```
+
+## Credits
+
+Built by [@pathtix](https://github.com/pathtix) together with [Claude](https://www.anthropic.com/claude) (Anthropic), using Claude Code.
+
+The interface is inspired by Overleaf and OpenAI Prism. open-latex-compiler is an independent project and is not affiliated with, endorsed by or sponsored by OpenAI or Overleaf.
